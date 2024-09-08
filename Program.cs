@@ -13,8 +13,9 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using EventStaf.Models;
 using StackExchange.Redis;
-using EventStaf.Infra.Swagger;
 using EventStaf.Infra.Cache;
+using Swashbuckle.AspNetCore.Filters;
+using EventStaf.Infra.Constants;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,9 +28,7 @@ var connectionString = builder.Environment.IsDevelopment()
 
 Console.WriteLine("=========================" + builder.Environment.EnvironmentName+ "==========================");
 
-Console.WriteLine("=========================" + connectionString + "==========================");
-
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+var redisConnectionString = builder.Configuration.GetConnectionString(Constants.Redis);
 var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString);
 builder.Services.AddSingleton<IConnectionMultiplexer>(redisConnection);
 
@@ -60,7 +59,7 @@ builder.Services.AddHealthChecks()
 builder.Services.AddStackExchangeRedisCache(options =>
 {
 	options.Configuration = redisConnectionString;
-	options.InstanceName = "EventStafCache_";
+	options.InstanceName = Constants.EventStafCache;
 });
 builder.Services.AddScoped<ICacheService, CacheService>();
 
@@ -71,7 +70,7 @@ SetTracing(builder, redisConnection);
 
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("AllowAll", builder =>
+	options.AddPolicy(Constants.AllowAll, builder =>
 	{
 		builder.AllowAnyOrigin()
 			   .AllowAnyMethod()
@@ -85,7 +84,7 @@ var app = builder.Build();
 
 await InitMigrateAndSeed(app);
 
-app.UseCors("AllowAll");
+app.UseCors(Constants.AllowAll);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -118,9 +117,9 @@ static void SetSwagger(WebApplicationBuilder builder)
 				ValidateAudience = true,
 				ValidateLifetime = true,
 				ValidateIssuerSigningKey = true,
-				ValidIssuer = builder.Configuration["Jwt:Issuer"],
-				ValidAudience = builder.Configuration["Jwt:Audience"],
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+				ValidIssuer = builder.Configuration[Constants.JwtIssuerKey],
+				ValidAudience = builder.Configuration[Constants.JwtAudienceKey],
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration[Constants.JwtKeyKey]))
 			};
 		});
 
@@ -132,8 +131,10 @@ static void SetSwagger(WebApplicationBuilder builder)
 		c.UseInlineDefinitionsForEnums();
 
 		// Use reflection to set examples
-		c.SchemaFilter<ExampleSchemaFilter>();
-		c.OperationFilter<AddRequestExamplesFilter>();
+		//c.SchemaFilter<ExampleSchemaFilter>();
+		//c.OperationFilter<AddRequestExamplesFilter>();
+
+		c.ExampleFilters();
 
 		c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 		{
@@ -158,6 +159,9 @@ static void SetSwagger(WebApplicationBuilder builder)
 			}
 		});
 	});
+
+	builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
+
 }
 
 static void SetTracing(WebApplicationBuilder builder, IConnectionMultiplexer redisCon)

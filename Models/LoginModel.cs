@@ -1,4 +1,5 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
+﻿using EventStaf.Models;
+using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventStaf.Models
@@ -20,4 +21,17 @@ namespace EventStaf.Models
 	{
 		public string JwtToken { get; set; }
 	}
+}
+
+
+public class LoginModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<LoginModel>
+{
+	public LoginModel GetExamples()
+	{
+		return new LoginModel() 
+		{
+			Username = "omer_seyrek111",
+			Password = "Test123"
+		};
+	}	
 }

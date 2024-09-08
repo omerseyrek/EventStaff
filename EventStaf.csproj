@@ -30,13 +30,15 @@
 	<PackageReference Include="StackExchange.Redis" Version="2.8.12" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
+    <PackageReference Include="Swashbuckle.Examples" Version="4.1.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Configurations\" />
+    <Folder Include="Infra\Swagger\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Models\NewFolder\" />
   </ItemGroup>
 
 </Project>
