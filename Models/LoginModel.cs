@@ -15,7 +15,7 @@ namespace EventStaf.Models
 		public string Username { get; set; }
 
 		[Required]
-		[SwaggerSchema( description: "Password for authentication...")]
+		[SwaggerSchema(description: "Password for authentication...")]
 		[StringLength(20, MinimumLength = 6)]
 		public string Password { get; set; }
 	}
@@ -23,60 +23,46 @@ namespace EventStaf.Models
 	public class LoginResultModel
 	{
 		public string JwtToken { get; set; }
+
 	}
-}
 
-
-//public class BaseModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<LoginModel>
-//{
-//	public LoginModel GetExamples()
-//	{
-//		return new LoginModel()
-//		{
-//			Username = "omer_seyrek111",
-//			Password = "Test123"
-//		};
-//	}
-//}
-
-public class LoginSuccesResultModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<Result<LoginResultModel>>
-{
-	public Result<LoginResultModel> GetExamples()
+	public class LoginSuccesResultModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<Result<LoginResultModel>>
 	{
-		return new Result<LoginResultModel>()
+		public Result<LoginResultModel> GetExamples()
 		{
-			IsSuccess = true,
-			Value = new LoginResultModel()
+			return new Result<LoginResultModel>()
 			{
-				JwtToken = "eyJhbGciOiAibm9uZSIsICJ0eXAiOiAiSldUIn0K.eyJ1c2VybmFtZSI6ImFkbWluaW5pc3RyYXRvciIsImlzX2FkbWluIjp0cnVlLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjI0MjYyMn0.",
-			}
-		};
+				IsSuccess = true,
+				Value = new LoginResultModel()
+				{
+					JwtToken = "eyJhbGciOiAibm9uZSIsICJ0eXAiOiAiSldUIn0K.eyJ1c2VybmFtZSI6ImFkbWluaW5pc3RyYXRvciIsImlzX2FkbWluIjp0cnVlLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjI0MjYyMn0.",
+				}
+			};
+		}
 	}
-}
 
-public class LoginFailureResultModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<Result<LoginResultModel>>
-{
-	public Result<LoginResultModel> GetExamples()
+	public class LoginFailureResultModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<Result<LoginResultModel>>
 	{
-		return new Result<LoginResultModel>()
+		public Result<LoginResultModel> GetExamples()
 		{
-			IsSuccess = false,
-			Errors = new List<string>() { "Invalid username or password.." },
-		};
+			return new Result<LoginResultModel>()
+			{
+				IsSuccess = false,
+				Errors = new List<string>() { "Invalid username or password.." },
+			};
+		}
 	}
-}
 
-
-
-
-public class LoginModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<LoginModel>
-{
-	public LoginModel GetExamples()
+	public class LoginModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<LoginModel>
 	{
-		return new LoginModel() 
+		public LoginModel GetExamples()
 		{
-			Username = "omer_seyrek111",
-			Password = "Test123"
-		};
-	}	
+			return new LoginModel()
+			{
+				Username = "omer_seyrek111",
+				Password = "Test123"
+			};
+		}
+	}
+
 }
