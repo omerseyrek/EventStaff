@@ -1,10 +1,11 @@
 ﻿using EventStaf.Data;
+using EventStaf.Entities;
 using EventStaf.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventStaf.Repositories
 {
-	public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
 	{
 		private readonly ApplicationDbContext _context;
 		public IRepository<AppUser> AppUsers { get; private set; }

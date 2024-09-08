@@ -1,8 +1,9 @@
-﻿using EventStaf.Models;
+﻿using EventStaf.Entities;
+using EventStaf.Models;
 
 namespace EventStaf.Repositories
 {
-	public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork : IDisposable
 	{
 		IRepository<AppUser> AppUsers { get; }
 		// Add other repositories as needed

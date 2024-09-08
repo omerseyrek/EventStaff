@@ -1,9 +1,9 @@
-﻿using EventStaf.Models;
+﻿using EventStaf.Infra.Result;
 using System.Linq.Expressions;
 
 namespace EventStaf.Services
 {
-	public interface IServiceBase<T>
+    public interface IServiceBase<T>
 	{
 		Task<Result<T>> GetByIdAsync(int id);
 		Task<Result<IEnumerable<T>>> GetAllAsync();

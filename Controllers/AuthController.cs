@@ -1,4 +1,5 @@
-﻿using EventStaf.Models;
+﻿using EventStaf.Infra.Result;
+using EventStaf.Models;
 using EventStaf.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -10,7 +11,7 @@ using System.Text;
 namespace EventStaf.Controllers
 {
 
-	[ApiController]
+    [ApiController]
 	[Route("api/[controller]")]
 	public class AuthController : ControllerBase
 	{

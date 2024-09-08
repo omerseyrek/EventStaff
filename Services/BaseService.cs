@@ -1,4 +1,5 @@
-﻿using EventStaf.Models;
+﻿using EventStaf.Entities;
+using EventStaf.Infra.Result;
 using EventStaf.Repositories;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -6,7 +7,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EventStaf.Services
 {
-	public class BaseService<T> :  IServiceBase<T> where T : EntityBase
+    public class BaseService<T> :  IServiceBase<T> where T : EntityBase
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private IRepository<T> _serviceRepository;

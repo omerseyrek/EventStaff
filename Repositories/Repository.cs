@@ -1,11 +1,11 @@
 ﻿using EventStaf.Data;
-using EventStaf.Models;
+using EventStaf.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace EventStaf.Repositories
 {
-	public class Repository<T> : IRepository<T> where T : EntityBase
+    public class Repository<T> : IRepository<T> where T : EntityBase
 	{
 		protected readonly ApplicationDbContext _context;
 		private readonly DbSet<T> _dbSet;

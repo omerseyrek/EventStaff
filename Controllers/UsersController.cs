@@ -1,4 +1,5 @@
-using EventStaf.Infra;
+using EventStaf.Infra.Cache;
+using EventStaf.Infra.Result;
 using EventStaf.Models;
 using EventStaf.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EventStaf.Controllers
 {
-	[Authorize]
+    [Authorize]
 	[ApiController]
 	[Route("api/[controller]")]
 	public class UsersController : ControllerBase

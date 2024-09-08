@@ -1,8 +1,8 @@
-﻿using EventStaf.Models;
+﻿using EventStaf.Entities;
 
 namespace EventStaf.Services
 {
-	public interface IUserService<T> : IServiceBase<T> where T : EntityBase
+    public interface IUserService<T> : IServiceBase<T> where T : EntityBase
 	{
 
 	}

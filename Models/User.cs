@@ -1,6 +1,8 @@
-﻿namespace EventStaf.Models
+﻿using EventStaf.Entities;
+
+namespace EventStaf.Models
 {
-	public class AppUser : EntityBase
+    public class AppUser : EntityBase
 	{
 		public string Username { get; set; }
 		public string Email { get; set; }

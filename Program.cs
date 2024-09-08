@@ -12,8 +12,9 @@ using System.Text;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using EventStaf.Models;
-using EventStaf.Infra;
 using StackExchange.Redis;
+using EventStaf.Infra.Swagger;
+using EventStaf.Infra.Cache;
 
 
 var builder = WebApplication.CreateBuilder(args);
