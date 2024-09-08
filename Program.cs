@@ -134,6 +134,10 @@ static void SetSwagger(WebApplicationBuilder builder)
 		//c.SchemaFilter<ExampleSchemaFilter>();
 		//c.OperationFilter<AddRequestExamplesFilter>();
 
+		c.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
+		c.OperationFilter<AddResponseHeadersFilter>();
+
+
 		c.ExampleFilters();
 
 		c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -231,9 +235,7 @@ static async Task InitMigrateAndSeed(WebApplication app)
 			var _userService = services.GetService<IUserService<AppUser>>();
 			if (!_userService.AnyAsync().Result.Value)
 			{
-				logger.LogInformation("=====before seeding");
 				DataSeeder.SeedData(context);
-				logger.LogInformation("=====after seeding");
 			}
 
 			logger.LogInformation("Database is ready.");
