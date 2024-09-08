@@ -37,7 +37,6 @@
 
   <ItemGroup>
     <Folder Include="Configurations\" />
-    <Folder Include="Infra\Swagger\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

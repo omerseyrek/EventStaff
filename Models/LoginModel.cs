@@ -1,6 +1,7 @@
 ﻿using EventStaf.Infra.Result;
 using EventStaf.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventStaf.Models
@@ -8,11 +9,14 @@ namespace EventStaf.Models
 	public class LoginModel
 	{
 		[Required]
-		[SwaggerSchema(Description = "Username for authentication")]
+		[SwaggerSchema(description: "UserName for authentication...")]
+		[StringLength(20, MinimumLength = 6)]
+		[SwaggerParameter("User's full name", Required = true)]
 		public string Username { get; set; }
 
 		[Required]
-		[SwaggerSchema(Description = "Username for authentication")]
+		[SwaggerSchema( description: "Password for authentication...")]
+		[StringLength(20, MinimumLength = 6)]
 		public string Password { get; set; }
 	}
 
@@ -35,7 +39,7 @@ namespace EventStaf.Models
 //	}
 //}
 
-public class LoginResultModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<Result<LoginResultModel>>
+public class LoginSuccesResultModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<Result<LoginResultModel>>
 {
 	public Result<LoginResultModel> GetExamples()
 	{
@@ -49,6 +53,19 @@ public class LoginResultModelExample : Swashbuckle.AspNetCore.Filters.IExamplesP
 		};
 	}
 }
+
+public class LoginFailureResultModelExample : Swashbuckle.AspNetCore.Filters.IExamplesProvider<Result<LoginResultModel>>
+{
+	public Result<LoginResultModel> GetExamples()
+	{
+		return new Result<LoginResultModel>()
+		{
+			IsSuccess = false,
+			Errors = new List<string>() { "Invalid username or password.." },
+		};
+	}
+}
+
 
 
 

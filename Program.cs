@@ -16,6 +16,7 @@ using StackExchange.Redis;
 using EventStaf.Infra.Cache;
 using Swashbuckle.AspNetCore.Filters;
 using EventStaf.Infra.Constants;
+using EventStaf.Infra.Swagger;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -137,6 +138,7 @@ static void SetSwagger(WebApplicationBuilder builder)
 		c.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
 		c.OperationFilter<AddResponseHeadersFilter>();
 
+		c.SchemaFilter<DescriptionSchemaFilter>();
 
 		c.ExampleFilters();
 

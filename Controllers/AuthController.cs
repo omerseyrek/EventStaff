@@ -4,6 +4,8 @@ using EventStaf.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
+using System.Data.SqlTypes;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -30,9 +32,11 @@ namespace EventStaf.Controllers
 		[SwaggerOperation(
 			Summary = "Authenticate user and return JWT token",
 			Description = "This endpoint validates the user credentials and returns a JWT token if successful.")]
-		[SwaggerResponse(200, "Login successful", typeof(Result<LoginResultModel>))]
-		[SwaggerResponse(400, "Invalid username or password", typeof(Result<LoginResultModel>))]
-		public ActionResult<Result<LoginResultModel>> Login([FromBody] LoginModel model)
+		[SwaggerResponse(StatusCodes.Status200OK, "Login successful", typeof(Result<LoginResultModel>))]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid username or password", typeof(Result<LoginResultModel>))]
+		[SwaggerResponseExample(StatusCodes.Status200OK, typeof(LoginSuccesResultModelExample))]
+		[SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(LoginFailureResultModelExample))]
+		public ActionResult<Result<LoginResultModel>> Login([FromBody][SwaggerRequestBody("User information", Required = true)] LoginModel model)
 		{
 			// TODO: Validate user credentials against your database
 			if (IsValidUser(model.Username, model.Password))
@@ -47,6 +51,7 @@ namespace EventStaf.Controllers
 
 			return BadRequest(Result<LoginResultModel>.Failure("Invalid username or password.."));
 		}
+
 
 		private bool IsValidUser(string username, string password)
 		{
