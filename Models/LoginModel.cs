@@ -1,4 +1,5 @@
 ﻿using EventStaf.Infra.Result;
+using EventStaf.Infra.Swagger;
 using EventStaf.Models;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel;
@@ -12,11 +13,13 @@ namespace EventStaf.Models
 		[SwaggerSchema(description: "UserName for authentication...")]
 		[StringLength(20, MinimumLength = 6)]
 		[SwaggerParameter("User's full name", Required = true)]
+		[SwaggerProperty(SwaggerPropertyType.UserName)]
 		public string Username { get; set; }
 
 		[Required]
 		[SwaggerSchema(description: "Password for authentication...")]
 		[StringLength(20, MinimumLength = 6)]
+		[SwaggerProperty(SwaggerPropertyType.Password)]
 		public string Password { get; set; }
 	}
 
@@ -30,6 +33,8 @@ namespace EventStaf.Models
 	{
 		public Result<LoginResultModel> GetExamples()
 		{
+			//SwaggerModelExampleGenerator.GenerateExample<Result<LoginResultModel>>()
+
 			return new Result<LoginResultModel>()
 			{
 				IsSuccess = true,
@@ -57,11 +62,8 @@ namespace EventStaf.Models
 	{
 		public LoginModel GetExamples()
 		{
-			return new LoginModel()
-			{
-				Username = "omer_seyrek111",
-				Password = "Test123"
-			};
+			var model = SwaggerModelExampleGenerator.GenerateExample<LoginModel>();
+			return model;
 		}
 	}
 

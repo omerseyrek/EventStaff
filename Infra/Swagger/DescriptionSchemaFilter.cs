@@ -2,7 +2,6 @@
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.ComponentModel;
 using System.Reflection;
 
 namespace EventStaf.Infra.Swagger
@@ -24,6 +23,4 @@ namespace EventStaf.Infra.Swagger
 			}
 		}
 	}
-
-
 }
