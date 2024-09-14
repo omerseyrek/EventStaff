@@ -1,9 +1,9 @@
-﻿using EventStaf.Models;
+﻿using EventStaf.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventStaf.Data
 {
-	public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext
 	{
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 			: base(options)
@@ -11,6 +11,8 @@ namespace EventStaf.Data
 		}
 
 		public DbSet<AppUser> AppUsers { get; set; }
+
+		public DbSet<Event> Events { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

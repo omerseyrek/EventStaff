@@ -11,12 +11,19 @@ using OpenTelemetry;
 using System.Text;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using EventStaf.Models;
 using StackExchange.Redis;
 using EventStaf.Infra.Cache;
 using Swashbuckle.AspNetCore.Filters;
 using EventStaf.Infra.Constants;
 using EventStaf.Infra.Swagger;
+using MassTransit;
+using EventStaf.Entities;
+using EventStaf.Infra.MessageQue;
+using EventStaf.Infra;
+using MassTransit.Logging;
+using Newtonsoft.Json;
+using MassTransit.RabbitMqTransport;
+using static MassTransit.Logging.DiagnosticHeaders.Messaging;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,9 +32,6 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Environment.IsDevelopment()
 	? builder.Configuration.GetConnectionString("DevelopmentConnection")
 	: builder.Configuration.GetConnectionString("DefaultConnection");
-
-
-Console.WriteLine("=========================" + builder.Environment.EnvironmentName+ "==========================");
 
 var redisConnectionString = builder.Configuration.GetConnectionString(Constants.Redis);
 var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString);
@@ -39,6 +43,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserService<AppUser>, UserService>();
+builder.Services.AddScoped<IEventService, EventService>();
 
 
 SetSwagger(builder);
@@ -65,6 +70,22 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddScoped<ICacheService, CacheService>();
 
 
+builder.Services.AddScoped<IEventStafPublisher, EventStafPublisher>();
+var massTransitConfig = builder.Configuration.GetSection("MassTransit").Get<MassTransitConfig>();
+Console.WriteLine("================"+ JsonConvert.SerializeObject(massTransitConfig));
+Console.WriteLine("================" + builder.Configuration.GetValue<string>("RabbitMQ:Host"));
+
+builder.Services.AddMassTransit(x =>
+{
+	x.UsingRabbitMq((context, cfg) =>
+	{
+		cfg.Host(builder.Configuration.GetValue<string>("RabbitMQ:Host"), massTransitConfig.VirtualHost, h =>
+		{
+			h.Username(massTransitConfig.Username);
+			h.Password(massTransitConfig.Password);
+		});
+	});
+});
 
 // Configure OpenTelemetry
 SetTracing(builder, redisConnection);
@@ -179,6 +200,7 @@ static void SetTracing(WebApplicationBuilder builder, IConnectionMultiplexer red
 				.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EventStaf-Api"))
 				.AddAspNetCoreInstrumentation()
 				.AddRedisInstrumentation(redisCon)
+				.AddSource(DiagnosticHeaders.DefaultListenerName)
 				.AddSqlClientInstrumentation(options =>
 				{
 					options.SetDbStatementForText = true;
@@ -217,7 +239,7 @@ static async Task InitMigrateAndSeed(WebApplication app)
 			{
 				logger.LogInformation("Database does not exist. Creating database...");
 				// This will create the database without applying any migrations or creating tables
-				//context.Database.EnsureCreated();
+				context.Database.EnsureCreated();
 				logger.LogInformation("Database created successfully.");
 			}
 			else
@@ -229,7 +251,7 @@ static async Task InitMigrateAndSeed(WebApplication app)
 			if (context.Database.GetPendingMigrations().Any())
 			{
 				logger.LogInformation("=====before migrating");
-				//context.Database.Migrate();
+				context.Database.Migrate();
 				logger.LogInformation("=====after migrating");
 			}
 

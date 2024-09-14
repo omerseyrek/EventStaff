@@ -11,14 +11,14 @@ namespace EventStaf.Models
 	{
 		[Required]
 		[SwaggerSchema(description: "UserName for authentication...")]
-		[StringLength(20, MinimumLength = 6)]
+		[StringLength(20, MinimumLength = 4)]
 		[SwaggerParameter("User's full name", Required = true)]
 		[SwaggerProperty(SwaggerPropertyType.UserName)]
 		public string Username { get; set; }
 
 		[Required]
 		[SwaggerSchema(description: "Password for authentication...")]
-		[StringLength(20, MinimumLength = 6)]
+		[StringLength(20, MinimumLength = 4)]
 		[SwaggerProperty(SwaggerPropertyType.Password)]
 		public string Password { get; set; }
 	}

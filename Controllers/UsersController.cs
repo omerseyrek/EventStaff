@@ -1,6 +1,6 @@
+using EventStaf.Entities;
 using EventStaf.Infra.Cache;
 using EventStaf.Infra.Result;
-using EventStaf.Models;
 using EventStaf.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

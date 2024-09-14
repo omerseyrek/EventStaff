@@ -1,10 +1,10 @@
-﻿using EventStaf.Models;
+﻿using EventStaf.Entities;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace EventStaf.Data
 {
-	public static class DataSeeder
+    public static class DataSeeder
 	{
 		public static void SeedData(ApplicationDbContext context)
 		{
