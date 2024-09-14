@@ -27,8 +27,7 @@ using static MassTransit.Logging.DiagnosticHeaders.Messaging;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-
+				
 var connectionString = builder.Environment.IsDevelopment()
 	? builder.Configuration.GetConnectionString("DevelopmentConnection")
 	: builder.Configuration.GetConnectionString("DefaultConnection");
@@ -73,13 +72,13 @@ builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IEventStafPublisher, EventStafPublisher>();
 var massTransitConfig = builder.Configuration.GetSection("MassTransit").Get<MassTransitConfig>();
 Console.WriteLine("================"+ JsonConvert.SerializeObject(massTransitConfig));
-Console.WriteLine("================" + builder.Configuration.GetValue<string>("RabbitMQ:Host"));
+Console.WriteLine("================" + builder.Configuration.GetValue<string>("MassTransit:Host"));
 
 builder.Services.AddMassTransit(x =>
 {
 	x.UsingRabbitMq((context, cfg) =>
 	{
-		cfg.Host(builder.Configuration.GetValue<string>("RabbitMQ:Host"), massTransitConfig.VirtualHost, h =>
+		cfg.Host(massTransitConfig.Host, massTransitConfig.VirtualHost, h =>
 		{
 			h.Username(massTransitConfig.Username);
 			h.Password(massTransitConfig.Password);

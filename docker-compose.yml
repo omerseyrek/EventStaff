@@ -19,10 +19,10 @@ services:
       - ConnectionStrings__DefaultConnection=Server=db;Database=EventStafDb;User=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
       - ConnectionStrings__DevelopmentConnection=Server=db;Database=EventStafDb;User=sa;Password=YourStrong!Passw0rd;Encrypt=False;
       - ConnectionStrings__Redis=redis:6379       
-      - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Port=5672
-      - RabbitMQ__Username=guest
-      - RabbitMQ__Password=guest
+      - MassTransit__Host=rabbitmq
+      - MassTransit__Port=5672
+      - MassTransit__Username=guest
+      - MassTransit__Password=guest
     networks:
       - eventstaff-network
     healthcheck:
