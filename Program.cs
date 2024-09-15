@@ -26,6 +26,7 @@ using static MassTransit.Logging.DiagnosticHeaders.Messaging;
 using EventStaf.Infra.Configuration;
 using Google.Protobuf.WellKnownTypes;
 
+System.Threading.Thread.Sleep(15000);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,7 +84,7 @@ builder.Services.AddMassTransit(x =>
 {
 	x.UsingRabbitMq((context, cfg) =>
 	{
-		cfg.Host(applicationConfiguration?.MassTransit?.Host ?? string.Empty, applicationConfiguration?.MassTransit?.VirtualHost ?? string.Empty, h =>
+		cfg.Host("rabbitmq", applicationConfiguration?.MassTransit?.VirtualHost ?? string.Empty, h =>
 		{
 			h.Username(applicationConfiguration?.MassTransit?.Username ?? string.Empty);
 			h.Password(applicationConfiguration?.MassTransit?.Password ?? string.Empty);
@@ -197,7 +198,7 @@ static void SetTracing(WebApplicationBuilder builder, IConnectionMultiplexer red
 				.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(ConstantKeys.EventStafApi))
 				.AddAspNetCoreInstrumentation()
 				.AddRedisInstrumentation(redisCon)
-				.AddSource(DiagnosticHeaders.DefaultListenerName)
+				//.AddSource(DiagnosticHeaders.DefaultListenerName)
 				.AddSqlClientInstrumentation(options =>
 				{
 					options.SetDbStatementForText = true;
