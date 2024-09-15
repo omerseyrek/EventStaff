@@ -18,11 +18,13 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=EventStafDb;User=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
       - ConnectionStrings__DevelopmentConnection=Server=db;Database=EventStafDb;User=sa;Password=YourStrong!Passw0rd;Encrypt=False;
-      - ConnectionStrings__Redis=redis:6379       
+      - ConnectionStrings__RedisHttp=redis:6379
+      - ConnectionStrings__RedisGrpc=redis:6379
       - MassTransit__Host=rabbitmq
       - MassTransit__Port=5672
       - MassTransit__Username=guest
       - MassTransit__Password=guest
+      - MassTransit__ExpireInMinues= 30
     networks:
       - eventstaff-network
     healthcheck:
@@ -49,7 +51,13 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=EventStafDb;User=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
       - ConnectionStrings__DevelopmentConnection=Server=db;Database=EventStafDb;User=sa;Password=YourStrong!Passw0rd;Encrypt=False;
-      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__RedisHttp=redis:6379
+      - ConnectionStrings__RedisGrpc=redis:6379
+      - MassTransit__Host=rabbitmq
+      - MassTransit__Port=5672
+      - MassTransit__Username=guest
+      - MassTransit__Password=guest
+      - MassTransit__ExpireInMinues= 30
     networks:
       - eventstaff-network
     healthcheck:

@@ -1,6 +1,6 @@
 ﻿using EventStaf.Entities;
-using EventStaf.Infra;
 using EventStaf.Infra.Cache;
+using EventStaf.Infra.Mapper;
 using EventStaf.Infra.MessageQue;
 using EventStaf.Infra.Result;
 using EventStaf.Models;
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EventStaf.Controllers
 {
 
-	[Authorize]
+    [Authorize]
 	[ApiController]
 	[Route("api/[controller]")]
 	public class EventsController : ControllerBase
@@ -62,17 +62,23 @@ namespace EventStaf.Controllers
 		[HttpPost]
 		public async Task<ActionResult<Event>> CreateUser(EventModel @eventModel)
 		{
-			Event newEntity = @eventModel.MapTo<Event>();
+			Event? newEntity = @eventModel.MapTo<Event>();
+			if (newEntity == null)
+			{
+				var mapperFailure = new Result<Event>();
+				mapperFailure.Errors.Add("mapper failed for the model and enity");
+				return BadRequest(mapperFailure);
+			}
 
 			var result = await _eventService.CreateAsync(newEntity);
 			if (!result.IsSuccess)
+			{
 				return BadRequest(result);
+			}
 
 			eventModel.Id = newEntity.Id;
-
 			await _eventPublisher.PublishEventOperation(@eventModel, OperationType.Create);
-
-			return CreatedAtAction(nameof(GetUser), new { id = result.Value.Id }, result.Value);
+			return CreatedAtAction(nameof(GetUser), new { id = result?.Value?.Id }, result?.Value);
 		}
 
 	}

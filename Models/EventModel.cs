@@ -37,8 +37,8 @@ namespace EventStaf.Models
 	public class EventOperationMessage
 	{
 		public Guid OperationId { get; set; }
-		public string OperationName { get; set; }
-		public EventModel EventModel { get; set; }	
+		public required string OperationName { get; set; }
+		public required EventModel EventModel { get; set; }	
 		public DateTime Timestamp { get; set; }
 	}
 }

@@ -14,18 +14,18 @@ namespace EventStaf.Models
 		[StringLength(20, MinimumLength = 4)]
 		[SwaggerParameter("User's full name", Required = true)]
 		[SwaggerProperty(SwaggerPropertyType.UserName)]
-		public string Username { get; set; }
+		public string? Username { get; set; }
 
 		[Required]
 		[SwaggerSchema(description: "Password for authentication...")]
 		[StringLength(20, MinimumLength = 4)]
 		[SwaggerProperty(SwaggerPropertyType.Password)]
-		public string Password { get; set; }
+		public string? Password { get; set; }
 	}
 
 	public class LoginResultModel
 	{
-		public string JwtToken { get; set; }
+		public string? JwtToken { get; set; }
 
 	}
 
@@ -63,7 +63,7 @@ namespace EventStaf.Models
 		public LoginModel GetExamples()
 		{
 			var model = SwaggerModelExampleGenerator.GenerateExample<LoginModel>();
-			return model;
+			return model ?? new LoginModel();
 		}
 	}
 

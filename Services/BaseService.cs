@@ -20,21 +20,21 @@ namespace EventStaf.Services
 			_entityName = typeof(T).Name;
 		}
 
-		public async Task<Result<T>> GetByIdAsync(int id)
+		public async Task<Result<T?>> GetByIdAsync(int id)
 		{
-			T data = await _serviceRepository.GetByIdAsync(id);
+			T? data = await _serviceRepository.GetByIdAsync(id);
 			if (data == null)
-				return Result<T>.Failure($"{_entityName} with id {id} not found.");
-			return Result<T>.Success(data);
+				return Result<T?>.Failure($"{_entityName} with id {id} not found.");
+			return Result<T?>.Success(data);
 		}
 
-		public async Task<Result<IEnumerable<T>>> GetAllAsync()
+		public async Task<Result<IEnumerable<T>?>> GetAllAsync()
 		{
 			IEnumerable<T> data = await _serviceRepository.GetAllAsync();
 			return Result<IEnumerable<T>>.Success(data);
 		}
 
-		public async Task<Result<T>> CreateAsync(T entityData)
+		public async Task<Result<T?>> CreateAsync(T entityData)
 		{
 			await _serviceRepository.AddAsync(entityData);
 			var result = await _unitOfWork.CompleteAsync();
@@ -43,7 +43,7 @@ namespace EventStaf.Services
 			return Result<T>.Success(entityData);
 		}
 
-		public async Task<Result<T>> UpdateAsync(T entityData)
+		public async Task<Result<T?>> UpdateAsync(T entityData)
 		{
 			await _serviceRepository.UpdateAsync(entityData);
 			var result = await _unitOfWork.CompleteAsync();
@@ -54,7 +54,7 @@ namespace EventStaf.Services
 
 		public async Task<Result<bool>> DeleteAsync(int id)
 		{
-			T data = await _serviceRepository.GetByIdAsync(id);
+			T? data = await _serviceRepository.GetByIdAsync(id);
 			if (data == null)
 				return Result<bool>.Failure($"{_entityName } with id {id} not found.");
 
@@ -71,10 +71,10 @@ namespace EventStaf.Services
 			return Result<bool>.Success(dataExists);
 		}
 
-		public async Task<Result<IEnumerable<T>>> FindAsync(Expression<Func<T, bool>> filter)
+		public async Task<Result<IEnumerable<T>?>> FindAsync(Expression<Func<T, bool>> filter)
 		{
 			IEnumerable<T> data = await _serviceRepository.FindAsync(filter);
-			return Result<IEnumerable<T>>.Success(data);
+			return Result<IEnumerable<T>?>.Success(data);
 		}
 	}
 }

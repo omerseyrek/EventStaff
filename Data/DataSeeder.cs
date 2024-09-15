@@ -1,4 +1,5 @@
 ﻿using EventStaf.Entities;
+using EventStaf.Infra.Constants;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -115,7 +116,13 @@ namespace EventStaf.Data
 			byte[] encodedPassword = new UTF8Encoding().GetBytes(valueToBeHashed);
 
 			// need MD5 to calculate the hash
-			byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+			HashAlgorithm? algorithm = CryptoConfig.CreateFromName(ConstantKeys.MD5) as HashAlgorithm;
+			if (algorithm == null)
+			{
+				return string.Empty;
+			}
+
+			byte[] hash = algorithm?.ComputeHash(encodedPassword) ?? Array.Empty<byte>();
 
 			// string representation (similar to UNIX format)
 			string encoded = BitConverter.ToString(hash)

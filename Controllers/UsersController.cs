@@ -48,7 +48,7 @@ namespace EventStaf.Controllers
 				return NotFound(result);
 			}
 
-			_cacheService.SetAsync(cacheKey, result.Value, TimeSpan.FromSeconds(60));
+			await _cacheService.SetAsync(cacheKey, result.Value, TimeSpan.FromSeconds(60));
 
 			return Ok(result);
 		}
@@ -59,7 +59,7 @@ namespace EventStaf.Controllers
 			var result = await _userService.CreateAsync(user);
 			if (!result.IsSuccess)
 				return BadRequest(result.Errors);
-			return CreatedAtAction(nameof(GetUser), new { id = result.Value.Id }, result.Value);
+			return CreatedAtAction(nameof(GetUser), new { id = result?.Value?.Id }, result?.Value);
 		}
 
 		[HttpPut("{id}")]

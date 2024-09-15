@@ -19,21 +19,28 @@ using EventStaf.Infra.Swagger;
 using MassTransit;
 using EventStaf.Entities;
 using EventStaf.Infra.MessageQue;
-using EventStaf.Infra;
 using MassTransit.Logging;
 using Newtonsoft.Json;
 using MassTransit.RabbitMqTransport;
 using static MassTransit.Logging.DiagnosticHeaders.Messaging;
+using EventStaf.Infra.Configuration;
+using Google.Protobuf.WellKnownTypes;
 
 
 var builder = WebApplication.CreateBuilder(args);
-				
-var connectionString = builder.Environment.IsDevelopment()
-	? builder.Configuration.GetConnectionString("DevelopmentConnection")
-	: builder.Configuration.GetConnectionString("DefaultConnection");
 
-var redisConnectionString = builder.Configuration.GetConnectionString(Constants.Redis);
-var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString);
+var applicationConfiguration = builder.Configuration.Get<ApplicationConfiguration>();
+
+Console.WriteLine("=======================================BEGIN whole config");
+Console.WriteLine(JsonConvert.SerializeObject(applicationConfiguration));
+Console.WriteLine("=======================================END whole config");
+
+var connectionString = builder.Environment.IsDevelopment()
+	? applicationConfiguration?.ConnectionStrings?.DevelopmentConnection ?? string.Empty
+	: applicationConfiguration?.ConnectionStrings?.DefaultConnection ?? string.Empty;
+
+
+var redisConnection = ConnectionMultiplexer.Connect(applicationConfiguration?.ConnectionStrings?.Redis ?? string.Empty);
 builder.Services.AddSingleton<IConnectionMultiplexer>(redisConnection);
 
 
@@ -44,8 +51,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserService<AppUser>, UserService>();
 builder.Services.AddScoped<IEventService, EventService>();
 
-
-SetSwagger(builder);
+SetSwagger(builder, applicationConfiguration);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -58,40 +64,39 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddHealthChecks()
 	.AddSqlServer(connectionString)
-    .AddRedis(redisConnectionString);
+	//.AddRedis("localhost:6379");
+	.AddRedis(applicationConfiguration?.ConnectionStrings?.Redis ?? string.Empty);
 
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-	options.Configuration = redisConnectionString;
-	options.InstanceName = Constants.EventStafCache;
+	options.Configuration = applicationConfiguration?.ConnectionStrings?.Redis ?? string.Empty;
+	options.InstanceName = ConstantKeys.EventStafCache;
 });
 builder.Services.AddScoped<ICacheService, CacheService>();
 
 
 builder.Services.AddScoped<IEventStafPublisher, EventStafPublisher>();
-var massTransitConfig = builder.Configuration.GetSection("MassTransit").Get<MassTransitConfig>();
-Console.WriteLine("================"+ JsonConvert.SerializeObject(massTransitConfig));
-Console.WriteLine("================" + builder.Configuration.GetValue<string>("MassTransit:Host"));
+
 
 builder.Services.AddMassTransit(x =>
 {
 	x.UsingRabbitMq((context, cfg) =>
 	{
-		cfg.Host(massTransitConfig.Host, massTransitConfig.VirtualHost, h =>
+		cfg.Host(applicationConfiguration?.MassTransit?.Host ?? string.Empty, applicationConfiguration?.MassTransit?.VirtualHost ?? string.Empty, h =>
 		{
-			h.Username(massTransitConfig.Username);
-			h.Password(massTransitConfig.Password);
+			h.Username(applicationConfiguration?.MassTransit?.Username ?? string.Empty);
+			h.Password(applicationConfiguration?.MassTransit?.Password ?? string.Empty);
 		});
 	});
 });
 
 // Configure OpenTelemetry
-SetTracing(builder, redisConnection);
+SetTracing(builder, redisConnection, applicationConfiguration);
 
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy(Constants.AllowAll, builder =>
+	options.AddPolicy(ConstantKeys.AllowAll, builder =>
 	{
 		builder.AllowAnyOrigin()
 			   .AllowAnyMethod()
@@ -105,7 +110,7 @@ var app = builder.Build();
 
 await InitMigrateAndSeed(app);
 
-app.UseCors(Constants.AllowAll);
+app.UseCors(ConstantKeys.AllowAll);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -126,7 +131,7 @@ app.Run();
 
 
 
-static void SetSwagger(WebApplicationBuilder builder)
+static void SetSwagger(WebApplicationBuilder builder, ApplicationConfiguration? appConfig)
 {
 	// Configure JWT authentication
 	builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -138,9 +143,9 @@ static void SetSwagger(WebApplicationBuilder builder)
 				ValidateAudience = true,
 				ValidateLifetime = true,
 				ValidateIssuerSigningKey = true,
-				ValidIssuer = builder.Configuration[Constants.JwtIssuerKey],
-				ValidAudience = builder.Configuration[Constants.JwtAudienceKey],
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration[Constants.JwtKeyKey]))
+				ValidIssuer = appConfig?.Jwt.Issuer ?? string.Empty,
+				ValidAudience = appConfig?.Jwt.Audience ?? string.Empty,
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appConfig?.Jwt.Key ?? string.Empty))
 			};
 		});
 
@@ -150,25 +155,18 @@ static void SetSwagger(WebApplicationBuilder builder)
 
 		c.EnableAnnotations();
 		c.UseInlineDefinitionsForEnums();
-
-		// Use reflection to set examples
-		//c.SchemaFilter<ExampleSchemaFilter>();
-		//c.OperationFilter<AddRequestExamplesFilter>();
-
 		c.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
 		c.OperationFilter<AddResponseHeadersFilter>();
-
 		c.SchemaFilter<DescriptionSchemaFilter>();
-
 		c.ExampleFilters();
 
-		c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+		c.AddSecurityDefinition(ConstantKeys.Bearer, new OpenApiSecurityScheme
 		{
 			Description = "JWT Authorization header using the Bearer scheme.",
-			Name = "Authorization",
+			Name = ConstantKeys.Authorization,
 			In = ParameterLocation.Header,
 			Type = SecuritySchemeType.Http,
-			Scheme = "bearer"
+			Scheme = ConstantKeys.Bearer
 		});
 		c.AddSecurityRequirement(new OpenApiSecurityRequirement
 		{
@@ -178,7 +176,7 @@ static void SetSwagger(WebApplicationBuilder builder)
 					Reference = new OpenApiReference
 					{
 						Type = ReferenceType.SecurityScheme,
-						Id = "Bearer"
+						Id = ConstantKeys.Bearer
 					}
 				},
 				new string[] { }
@@ -190,13 +188,13 @@ static void SetSwagger(WebApplicationBuilder builder)
 
 }
 
-static void SetTracing(WebApplicationBuilder builder, IConnectionMultiplexer redisCon)
+static void SetTracing(WebApplicationBuilder builder, IConnectionMultiplexer redisCon, ApplicationConfiguration? appConfig)
 {
 	builder.Services.AddOpenTelemetry()
 		.WithTracing(tracerProviderBuilder =>
 			tracerProviderBuilder
-				.AddSource("EventStaf-Api")
-				.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("EventStaf-Api"))
+				.AddSource(ConstantKeys.EventStafApi)
+				.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(ConstantKeys.EventStafApi))
 				.AddAspNetCoreInstrumentation()
 				.AddRedisInstrumentation(redisCon)
 				.AddSource(DiagnosticHeaders.DefaultListenerName)
@@ -207,67 +205,52 @@ static void SetTracing(WebApplicationBuilder builder, IConnectionMultiplexer red
 				})
 				.AddOtlpExporter(options =>
 				{
-					options.Endpoint = new Uri("http://jaeger:4317"); // OTLP gRPC endpoint
+					options.Endpoint = new Uri(appConfig?.ConnectionStrings?.RedisHttp ?? string.Empty); // OTLP gRPC endpoint
 				}))
 		.WithMetrics(meterProviderBuilder =>
 			meterProviderBuilder
 				.AddAspNetCoreInstrumentation()
 				.AddOtlpExporter(options =>
 				{
-					options.Endpoint = new Uri("http://jaeger:4318"); // OTLP gRPC endpoint
+					options.Endpoint = new Uri(appConfig?.ConnectionStrings?.RedisGrpc ?? string.Empty); // OTLP gRPC endpoint
 				}));
 }
 
-static async Task InitMigrateAndSeed(WebApplication app)
+static Task InitMigrateAndSeed(WebApplication app)
 {
 	using (var scope = app.Services.CreateScope())
 	{
 		var services = scope.ServiceProvider;
 		var logger = services.GetRequiredService<ILogger<Program>>();
-
-
 		try
 		{
-			logger.LogInformation("Attempting to ensure database is created and up to date.");
 			var context = services.GetRequiredService<ApplicationDbContext>();
-
-			// Check if the database exists
 			bool dbExists = context.Database.CanConnect();
 
 			if (!dbExists)
 			{
-				logger.LogInformation("Database does not exist. Creating database...");
 				// This will create the database without applying any migrations or creating tables
 				context.Database.EnsureCreated();
-				logger.LogInformation("Database created successfully.");
-			}
-			else
-			{
-				logger.LogInformation("Database already exists.");
 			}
 
 			// Apply any pending migrations
 			if (context.Database.GetPendingMigrations().Any())
 			{
-				logger.LogInformation("=====before migrating");
 				context.Database.Migrate();
-				logger.LogInformation("=====after migrating");
 			}
 
 			// Seed data
 			var _userService = services.GetService<IUserService<AppUser>>();
-			if (!_userService.AnyAsync().Result.Value)
+			if (!_userService?.AnyAsync()?.Result?.Value ?? false)
 			{
 				DataSeeder.SeedData(context);
 			}
-
-			logger.LogInformation("Database is ready.");
 		}
 		catch (Exception ex)
 		{
 			logger.LogError(ex, $"An error occurred while setting up the database.{ex.Message}");
 		}
-		return;
-		
+
+		return Task.CompletedTask;
 	}
 }

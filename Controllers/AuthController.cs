@@ -1,4 +1,6 @@
 ﻿using EventStaf.Entities;
+using EventStaf.Infra.Configuration;
+using EventStaf.Infra.Constants;
 using EventStaf.Infra.Result;
 using EventStaf.Models;
 using EventStaf.Services;
@@ -20,7 +22,7 @@ namespace EventStaf.Controllers
 	{
 		private readonly IConfiguration _configuration;
 		private readonly IUserService<AppUser> _userService;
-
+		
 
 		public AuthController(IConfiguration configuration, IUserService<AppUser> userService)
 		{
@@ -40,9 +42,9 @@ namespace EventStaf.Controllers
 		public ActionResult<Result<LoginResultModel>> Login([FromBody][SwaggerRequestBody("User information", Required = true)] LoginModel model)
 		{
 			// TODO: Validate user credentials against your database
-			if (IsValidUser(model.Username, model.Password))
+			if (IsValidUser(model?.Username ?? string.Empty, model?.Password ?? string.Empty))
 			{
-				var token = GenerateJwtToken(model.Username);
+				var token = GenerateJwtToken(model?.Username ?? string.Empty);
 				LoginResultModel resultModel = new LoginResultModel()
 				{
 					JwtToken = token
@@ -57,12 +59,14 @@ namespace EventStaf.Controllers
 		private bool IsValidUser(string username, string password)
 		{
 			var hashedPwd = EventStaf.Data.DataSeeder.GetHashFromString(password);
-			return _userService.FindAsync(u => u.Username == username && u.PasswordHash == hashedPwd).Result.Value.Any();
+			return _userService.FindAsync(u => u.Username == username && u.PasswordHash == hashedPwd).Result?.Value?.Any() ?? false;
 		}
 
 		private string GenerateJwtToken(string username)
 		{
-			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+			var jwtConfiguration =  _configuration.GetSection(ConstantKeys.Jwt).Get<Jwt>();
+
+			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration?.Key ?? string.Empty));
 			var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
 			var claims = new[]
@@ -72,8 +76,8 @@ namespace EventStaf.Controllers
 			};
 
 			var token = new JwtSecurityToken(
-				issuer: _configuration["Jwt:Issuer"],
-				audience: _configuration["Jwt:Audience"],
+				issuer: jwtConfiguration?.Issuer ?? string.Empty,
+				audience: jwtConfiguration?.Audience ?? string.Empty,
 				claims: claims,
 				expires: DateTime.Now.AddMinutes(120),
 				signingCredentials: credentials

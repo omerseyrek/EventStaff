@@ -19,11 +19,11 @@ namespace EventStaf.Infra.Cache
         public async Task<T?> GetAsync<T>(string key)
         {
             var db = _redis.GetDatabase();
-            var cachedValue = await db.StringGetAsync(key);
+            RedisValue? cachedValue = await db.StringGetAsync(key);
             if (!cachedValue.HasValue)
                 return default;
 
-            T resultValue = System.Text.Json.JsonSerializer.Deserialize<T>(cachedValue);
+            T? resultValue = System.Text.Json.JsonSerializer.Deserialize<T?>(cachedValue.Value.ToString());
             return resultValue;
         }
 
