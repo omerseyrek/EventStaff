@@ -5,15 +5,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+
     depends_on:
-      # db:
-      #   condition: service_healthy
-      jaeger:
-        condition: service_started
-      redis:
-        condition: service_healthy 
-      rabbitmq:
-        condition: service_healthy
+      - db
+      - jaeger
+      - redis
+      - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=EventStafDb;User=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
@@ -42,12 +39,10 @@ services:
     ports:
       - "8082:8080"
     depends_on:
-      db:
-        condition: service_healthy
-      jaeger:
-        condition: service_started
-      redis:
-        condition: service_healthy 
+      - db
+      - jaeger
+      - redis
+      - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=EventStafDb;User=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
@@ -86,7 +81,7 @@ services:
       interval: 10s
       retries: 5
       start_period: 20s
-      timeout: 3s
+      timeout: 15s
 
   redis:
     image: redis:alpine
