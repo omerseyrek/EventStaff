@@ -217,7 +217,7 @@ static async Task InitMigrateAndSeed(WebApplication app)
 			{
 				logger.LogInformation("Database does not exist. Creating database...");
 				// This will create the database without applying any migrations or creating tables
-				//context.Database.EnsureCreated();
+				context.Database.EnsureCreated();
 				logger.LogInformation("Database created successfully.");
 			}
 			else
@@ -237,8 +237,10 @@ static async Task InitMigrateAndSeed(WebApplication app)
 			var _userService = services.GetService<IUserService<AppUser>>();
 			if (!_userService.AnyAsync().Result.Value)
 			{
+				logger.LogInformation("=====before seeding");    
 				DataSeeder.SeedData(context);
-			}
+                logger.LogInformation("=====after seeding");
+            }
 
 			logger.LogInformation("Database is ready.");
 		}
