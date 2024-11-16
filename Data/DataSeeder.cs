@@ -19,7 +19,7 @@ namespace EventStaf.Data
 						Email = "john.doe@example.com",
 						FirstName = "John",
 						LastName = "Doe",
-						PasswordHash = GetHashFromString("john"),
+						PasswordHash = GetHashFromString("johndoe"),
 						DateOfBirth = new DateTime(1985, 5, 15),
 						RegistrationDate = DateTime.Now.AddYears(-3),
 						IsActive = true
@@ -30,7 +30,7 @@ namespace EventStaf.Data
 						Email = "jane.smith@example.com",
 						FirstName = "Jane",
 						LastName = "Smith",
-						PasswordHash = GetHashFromString("john"),
+						PasswordHash = GetHashFromString("johndoe"),
 						DateOfBirth = new DateTime(1990, 8, 22),
 						RegistrationDate = DateTime.Now.AddYears(-2),
 						IsActive = true
@@ -41,7 +41,7 @@ namespace EventStaf.Data
 						Email = "bob.johnson@example.com",
 						FirstName = "Bob",
 						LastName = "Johnson",
-						PasswordHash = GetHashFromString("john"),
+						PasswordHash = GetHashFromString("johndoe"),
 						DateOfBirth = new DateTime(1978, 3, 10),
 						RegistrationDate = DateTime.Now.AddYears(-5),
 						IsActive = false
@@ -52,7 +52,7 @@ namespace EventStaf.Data
 						Email = "alice.wonderland@example.com",
 						FirstName = "Alice",
 						LastName = "Wonderland",
-						PasswordHash = GetHashFromString("john"),
+						PasswordHash = GetHashFromString("johndoe"),
 						DateOfBirth = new DateTime(1995, 12, 1),
 						RegistrationDate = DateTime.Now.AddMonths(-6),
 						IsActive = true
@@ -63,7 +63,7 @@ namespace EventStaf.Data
 						Email = "charlie.brown@example.com",
 						FirstName = "Charlie",
 						LastName = "Brown",
-						PasswordHash = GetHashFromString("john"),
+						PasswordHash = GetHashFromString("johndoe"),
 						DateOfBirth = new DateTime(1980, 7, 30),
 						RegistrationDate = DateTime.Now.AddYears(-1),
 						IsActive = true
@@ -74,7 +74,7 @@ namespace EventStaf.Data
 						Email = "emma.watson@example.com",
 						FirstName = "Emma",
 						LastName = "Watson",
-						PasswordHash = GetHashFromString("john"),
+						PasswordHash = GetHashFromString("johndoe"),
 						DateOfBirth = new DateTime(1992, 4, 15),
 						RegistrationDate = DateTime.Now.AddDays(-45),
 						IsActive = true
@@ -85,7 +85,7 @@ namespace EventStaf.Data
 						Email = "david.beckham@example.com",
 						FirstName = "David",
 						LastName = "Beckham",
-						PasswordHash = GetHashFromString("john"),
+						PasswordHash = GetHashFromString("johndoe"),
 						DateOfBirth = new DateTime(1975, 5, 2),
 						RegistrationDate = DateTime.Now.AddYears(-7),
 						IsActive = true
@@ -96,7 +96,7 @@ namespace EventStaf.Data
 						Email = "sarah.connor@example.com",
 						FirstName = "Sarah",
 						LastName = "Connor",
-						PasswordHash = GetHashFromString("john"),
+						PasswordHash = GetHashFromString("johndoe"),
 						DateOfBirth = new DateTime(1982, 11, 13),
 						RegistrationDate = DateTime.Now.AddMonths(-3),
 						IsActive = false
