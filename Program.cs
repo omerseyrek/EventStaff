@@ -237,6 +237,7 @@ static Task InitMigrateAndSeed(WebApplication app)
 			else
 			{
 				logger.LogInformation("Database already exists.");
+
 			}
 
 			// Apply any pending migrations
@@ -248,6 +249,11 @@ static Task InitMigrateAndSeed(WebApplication app)
 			// Seed data
 			var _userService = services.GetService<IUserService<AppUser>>();
 			if (!_userService?.AnyAsync()?.Result?.Value ?? false)
+			{
+				DataSeeder.SeedData(context);
+			}
+
+			if (!_userService.AnyAsync().Result.Value)
 			{
 				logger.LogInformation("=====before seeding");    
 				DataSeeder.SeedData(context);
