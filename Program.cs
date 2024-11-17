@@ -84,10 +84,15 @@ builder.Services.AddMassTransit(x =>
 {
 	x.UsingRabbitMq((context, cfg) =>
 	{
-		cfg.Host("rabbitmq", applicationConfiguration?.MassTransit?.VirtualHost ?? string.Empty, h =>
+		var rabbitMqHost = applicationConfiguration?.MassTransit?.Host?? string.Empty; 
+		var rabbitMqVirtualHost = applicationConfiguration?.MassTransit?.VirtualHost ?? string.Empty;
+		var rabbitMqUser = applicationConfiguration?.MassTransit?.Username ?? string.Empty;
+        var rabbitMqPassword = applicationConfiguration?.MassTransit?.Username ?? string.Empty;
+
+        cfg.Host(rabbitMqHost, rabbitMqVirtualHost, h =>
 		{
-			h.Username(applicationConfiguration?.MassTransit?.Username ?? string.Empty);
-			h.Password(applicationConfiguration?.MassTransit?.Password ?? string.Empty);
+			h.Username(rabbitMqUser);
+			h.Password(rabbitMqPassword);
 		});
 	});
 });
@@ -215,6 +220,7 @@ static void SetTracing(WebApplicationBuilder builder, IConnectionMultiplexer red
 				{
 					options.Endpoint = new Uri(appConfig?.ConnectionStrings?.RedisGrpc ?? string.Empty); // OTLP gRPC endpoint
 				}));
+
 }
 
 static Task InitMigrateAndSeed(WebApplication app)
@@ -231,7 +237,7 @@ static Task InitMigrateAndSeed(WebApplication app)
 			if (!dbExists)
 			{
 				// This will create the database without applying any migrations or creating tables
-				context.Database.EnsureCreated();
+				//context.Database.EnsureCreated();
 				logger.LogInformation("Database created successfully.");
 			}
 			else
@@ -250,13 +256,8 @@ static Task InitMigrateAndSeed(WebApplication app)
 			var _userService = services.GetService<IUserService<AppUser>>();
 			if (!_userService?.AnyAsync()?.Result?.Value ?? false)
 			{
-				DataSeeder.SeedData(context);
-			}
-
-			if (!_userService.AnyAsync().Result.Value)
-			{
-				logger.LogInformation("=====before seeding");    
-				DataSeeder.SeedData(context);
+                logger.LogInformation("=====before seeding");
+                DataSeeder.SeedData(context);
                 logger.LogInformation("=====after seeding");
             }
 
