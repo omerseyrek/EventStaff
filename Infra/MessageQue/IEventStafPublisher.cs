@@ -20,9 +20,9 @@ namespace EventStaf.Infra.MessageQue
 
         private static readonly ActivitySource _activitySource = new("messaging.masstransit");
 
-        public async Task PublishMessage<T>(T message) where T : class
+        public async Task PublishMessage<T>(T message, string operationCode) where T : class
         {
-            using var activity = _activitySource.StartActivity(
+            var activity = _activitySource.StartActivity(
                 $"Publish:{typeof(T).Name}",
                 ActivityKind.Producer);
 
@@ -38,7 +38,7 @@ namespace EventStaf.Infra.MessageQue
                         // Add custom properties
                         activity.SetTag("messaging.system", "rabbitmq");
                         activity.SetTag("messaging.destination_kind", "queue");
-                        activity.SetTag("messaging.operation", "publish");
+                        activity.SetTag("messaging.operation", operationCode);
                         activity.SetTag("messaging.message_type", typeof(T).Name);
                     }
                 });
@@ -65,13 +65,14 @@ namespace EventStaf.Infra.MessageQue
 
 		public async Task PublishEventOperation(EventModel eventModel, string operationType)
 		{
-			await _publishEndpoint2.Publish(new EventOperationMessage
-			{
-				OperationId = Guid.NewGuid(),
-				OperationName = operationType,
-				EventModel = eventModel,
-				Timestamp = DateTime.UtcNow
-			});
-		}
+            //await base.PublishMessage(eventModel, operationType);
+            await _publishEndpoint2.Publish(new EventOperationMessage
+            {
+                OperationId = Guid.NewGuid(),
+                OperationName = operationType,
+                EventModel = eventModel,
+                Timestamp = DateTime.UtcNow
+            });
+        }
 	}
 }

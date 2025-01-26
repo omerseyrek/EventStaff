@@ -80,25 +80,29 @@ builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddScoped<IEventStafPublisher, EventStafPublisher>();
 
 
+// Configure OpenTelemetry
+SetTracing(builder, redisConnection, applicationConfiguration);
+
+
+//then configure mass transit
 builder.Services.AddMassTransit(x =>
 {
-	x.UsingRabbitMq((context, cfg) =>
-	{
-		var rabbitMqHost = applicationConfiguration?.MassTransit?.Host?? string.Empty; 
-		var rabbitMqVirtualHost = applicationConfiguration?.MassTransit?.VirtualHost ?? string.Empty;
-		var rabbitMqUser = applicationConfiguration?.MassTransit?.Username ?? string.Empty;
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var rabbitMqHost = applicationConfiguration?.MassTransit?.Host ?? string.Empty;
+        var rabbitMqVirtualHost = applicationConfiguration?.MassTransit?.VirtualHost ?? string.Empty;
+        var rabbitMqUser = applicationConfiguration?.MassTransit?.Username ?? string.Empty;
         var rabbitMqPassword = applicationConfiguration?.MassTransit?.Username ?? string.Empty;
 
         cfg.Host(rabbitMqHost, rabbitMqVirtualHost, h =>
-		{
-			h.Username(rabbitMqUser);
-			h.Password(rabbitMqPassword);
-		});
-	});
-});
+        {
+            h.Username(rabbitMqUser);
+            h.Password(rabbitMqPassword);
+        });
 
-// Configure OpenTelemetry
-SetTracing(builder, redisConnection, applicationConfiguration);
+        cfg.UseInstrumentation();
+    });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -200,11 +204,12 @@ static void SetTracing(WebApplicationBuilder builder, IConnectionMultiplexer red
 		.WithTracing(tracerProviderBuilder =>
 			tracerProviderBuilder
 				.AddSource(ConstantKeys.EventStafApi)
-				.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(ConstantKeys.EventStafApi))
+				.AddSource("MassTransit")
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(ConstantKeys.EventStafApi))
 				.AddAspNetCoreInstrumentation()
-				.AddRedisInstrumentation(redisCon)
-				//.AddSource(DiagnosticHeaders.DefaultListenerName)
-				.AddSqlClientInstrumentation(options =>
+				.AddRedisInstrumentation(redisCon)				
+                //.AddSource(DiagnosticHeaders.DefaultListenerName)
+                .AddSqlClientInstrumentation(options =>
 				{
 					options.SetDbStatementForText = true;
 					options.RecordException = true;

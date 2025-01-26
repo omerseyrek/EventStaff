@@ -78,7 +78,7 @@ namespace EventStaf.Controllers
 
 			eventModel.Id = newEntity.Id;
 			await _eventPublisher.PublishEventOperation(@eventModel, OperationType.Create);
-			return Ok(Result<Event>.Success(result.Value));
+			return Ok(result);
         }
 
 	}
