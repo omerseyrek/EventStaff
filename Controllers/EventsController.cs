@@ -78,8 +78,8 @@ namespace EventStaf.Controllers
 
 			eventModel.Id = newEntity.Id;
 			await _eventPublisher.PublishEventOperation(@eventModel, OperationType.Create);
-			return CreatedAtAction(nameof(GetUser), new { id = result?.Value?.Id }, result?.Value);
-		}
+			return Ok(Result<Event>.Success(result.Value));
+        }
 
 	}
 

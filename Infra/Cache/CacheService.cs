@@ -23,6 +23,11 @@ namespace EventStaf.Infra.Cache
             if (!cachedValue.HasValue)
                 return default;
 
+            if (cachedValue.Value.IsNull)
+            {
+                return default;
+            }
+
             T? resultValue = System.Text.Json.JsonSerializer.Deserialize<T?>(cachedValue.Value.ToString());
             return resultValue;
         }
